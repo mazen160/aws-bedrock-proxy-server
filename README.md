@@ -18,8 +18,8 @@ A FastAPI-based proxy server that provides an OLLAMA-compatible API interface fo
 
 Currently supported AWS Bedrock models:
 
-- Claude 3.5 Sonnet (anthropic.claude-3-sonnet-20240229-v1:0)
-- Claude 3 Haiku (anthropic.claude-3-haiku-20240307-v1:0)
+- Claude 3.5 Sonnet (`anthropic.claude-3-sonnet-20240229-v1:0`)
+- Claude 3 Haiku (`anthropic.claude-3-haiku-20240307-v1:0`)
   
 Additional AWS Bedrock models can be added. Contributions are welcome!
 

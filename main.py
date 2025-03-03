@@ -19,12 +19,15 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
-APP_HOST = os.getenv('APP_HOST', '127.0.0.1')
+APP_HOST = os.getenv('APP_HOST', '0.0.0.0')
 APP_PORT = int(os.getenv('APP_PORT', '11434'))
 ALLOWED_MODELS = ["anthropic.claude-3-sonnet-20240229-v1:0", "anthropic.claude-3-haiku-20240307-v1:0"]
 DEFAULT_MODEL = "anthropic.claude-3-haiku-20240307-v1:0"
 MAX_TOKENS = 8129
 ANTHROPIC_VERSION = "bedrock-2023-05-31"
+DEFAULT_TEMPERATURE = 1.0
+DEFAULT_TOP_K = 250
+DEFAULT_TOP_P = 0.999
 
 # Initialize AWS Bedrock client
 bedrock = boto3.client(
@@ -108,11 +111,6 @@ async def generate(request: GenerateRequest):
             )
 
         start_time = time.time()
-        
-        system = request.system or ""
-        prompt = request.prompt or ""
-        prompt = f"{system}\n\n{prompt}" if prompt else ""
-
 
 
         request.model = request.model or DEFAULT_MODEL
@@ -123,13 +121,24 @@ async def generate(request: GenerateRequest):
             )
 
         payload = {
-            "anthropic_version": ANTHROPIC_VERSION,
-            "max_tokens": MAX_TOKENS,
-            "messages": [{
+        "anthropic_version": ANTHROPIC_VERSION,
+        "max_tokens": MAX_TOKENS,
+        "system": request.system ,
+        "temperature": DEFAULT_TEMPERATURE,
+        "top_k": DEFAULT_TOP_K,
+        "top_p": DEFAULT_TOP_P,
+        "messages": [
+            {
                 "role": "user",
-                "content": [{"type": "text", "text": prompt}]
-            }]
-        }
+                "content": [
+                    {
+                        "type": "text",
+                        "text":  request.prompt,
+                    }
+                ],
+            }
+        ],
+    }
 
         try:
             response = bedrock_runtime.invoke_model(
